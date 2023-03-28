@@ -5,28 +5,30 @@ import { useFormik } from 'formik'
 import {toast} from 'react-toastify'
 import { LoginValidate } from '../ValidatePages'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const initialValues={email:'',password:''}
+
 const LoginPage = () => {
   const {values,handleBlur, errors,touched,handleChange}=useFormik({
 initialValues:initialValues,
 validationSchema:LoginValidate
   })
-
-  const loginhandle=()=>{
-    axios.post('http://localhost:4000/user/login',
-    {email:values.email,password:values.password})
-    .then(data=>{
-      console.log(data.data,'fg')
+  const navigate=useNavigate();
+  const loginHandle=()=>{
+    axios.post('http://localhost:4000/user/login',{
+      email:values.email,password:values.password
+    }).then((data)=>{
      if(data.data.status==200){
-      toast.success(data.data.message)
+      localStorage.setItem("userInfo",data.data.token);
+      toast.success(data.data.message);
+      navigate('/home')
      }else{
-      toast.error(data.data.message);
+      toast.error(data.data.message)
      }
-     
     })
-    .catch(error=>console.log(error))
   }
+  
   
   return (
     <div className='flex h-screen justify-center items-center'
@@ -74,10 +76,7 @@ className='w-80 outline-none text-white text-xl'
 }
 <button style={{backgroundImage:'linear-gradient(to right,green,red)'}}
 className='text-white text-lg rounded-full'
-onClick={()=>{
- loginhandle()
- 
-}}
+onClick={loginHandle}
 >
 Login
 </button>
